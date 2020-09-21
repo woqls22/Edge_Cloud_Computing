@@ -1,0 +1,26 @@
+1. CI - Core Cloud IP
+2. CP - Core Cloud Port number
+3. Ping(CI, CP) - function which return connection result with CI, CP
+4. Preprocess(Image Input) - Function which return preprocessed Image(numpy int.64 BGR Format)
+5. rule - Rule Structure for connection 
+6. to_destination(rule, Data) : Function which send data with defined rule
+7. drivingInfo - driving Information Structure
+8. Cart.drive(drivingInfo) : Drive Command with driving info parameter
+9. Listening - Function which wait until signal of data receive
+
+while(Ping CI, CP) : 
+	Frame = Camera.get()
+	Preprocessed_Frame = Preprocess(Frame)
+	rule = iptc.Rule()
+	rule.protocol = 'tcp'
+	rule.dst = CI
+	m = rult.create_match('tcp')
+	m.port = CP
+	to_destination(rule, Preprocessed_Frame)
+	
+	if(Listening(edge_port)):
+		result = get_find(Shared_Memory_ID)
+		drivingInfo.velocity = result.velocity
+		drivingInfo.steer = result.steer
+		Cart.drive(drivingInfo)
+	
