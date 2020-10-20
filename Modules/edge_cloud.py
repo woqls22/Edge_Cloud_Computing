@@ -30,9 +30,6 @@ def bboxes(inp):
     img = inp
     start = time.time()
     curTime = time.time()
-    # img2gray = cv2.imread(fname,0)
-    # img = cv2.namedWindow(img,cv2.WINDOW_NORMAL)
-    # img = cv2.resizeWindow(img,600,600)
     img_final = inp
     img2gray = cv2.cvtColor(inp, cv2.COLOR_BGR2GRAY) #GRAY Image 8bit per pixel
     ret, mask = cv2.threshold(img2gray, 180, 255, cv2.THRESH_BINARY) #threshold : distinguish background, object
