@@ -45,3 +45,5 @@ if __name__ == "__main__":
         cropped = cv2.resize(cropped, (48,48)) #Crop Image Resize
         lm.new_tensor(cropped) # Predict result
         lm.predict_process.join() # thread join
+        if(conn): #연결 끊어질 경우 loop 탈출
+            break
