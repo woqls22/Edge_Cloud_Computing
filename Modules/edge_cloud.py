@@ -4,6 +4,7 @@ import numpy as np
 from queue import Queue
 from _thread import *
 enclose_q = Queue()
+recv_enclose_q = Queue()
 import time
 def filter_img(img):
     #이미지의 RGB값을 분석하여 찾는 실내 Tag가 맞는지 판별
@@ -55,7 +56,7 @@ def bboxes(inp):
             continue
     return cropped
 
-def threaded(Client_socket, addr, queue):
+def send_threaded(Client_socket, addr, queue):
     print("Connected by : ", addr[0], " : ", addr[1])
     while True:
         try :
@@ -69,7 +70,6 @@ def threaded(Client_socket, addr, queue):
         except ConnectionResetError as e:
             print("Disconnected")
     Client_socket.close()
-
 
 def webcam(queue):
     capture = cv2.VideoCapture(0)
@@ -88,23 +88,49 @@ def webcam(queue):
         key = cv2.waitKey(1)
         if key == 27:
             break
+def recvall(sock, count):
+    # 바이트 문자열
+    buf = b''
+    while count:
+        newbuf = sock.recv(count)
+        if not newbuf: return None
+        buf += newbuf
+        count -= len(newbuf)
+    return buf
 
 if __name__ == '__main__':
-    HOST = '127.0.0.1'
-    PORT = 9999
+    SEND_HOST = '127.0.0.1'
+    SEND_PORT = 9999
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind((HOST, PORT))
+    server_socket.bind((SEND_HOST, SEND_PORT))
     server_socket.listen()
+
+    RECV_HOST = '127.0.0.1'
+    RECV_PORT = 9999
+
+    recv_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    recv_server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    recv_server_socket.bind((RECV_HOST, RECV_PORT))
+    recv_server_socket.listen()
 
     print('server start')
 
     start_new_thread(webcam, (enclose_q,))
-
+    conn,addr = recv_server_socket.accept()
     while True:
         print('wait')
 
         client_socket, addr = server_socket.accept()
-        start_new_thread(threaded, (client_socket, addr, enclose_q,))
+        recv_socket, recv_addr = recv_server_socket.accept()
+        start_new_thread(send_threaded, (client_socket, addr, enclose_q,)) #전처리 데이터 송신
+        if(conn):
+            length = recvall(conn, 16)
+            stringData = recvall(conn, int(length))
+            data = np.fromstring(stringData, dtype = 'uint8') #주행정보 수신
+            if(conn): #연결 끊어질 경우 loop 탈출
+                break
+        else:
+            pass
     server_socket.close()
