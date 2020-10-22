@@ -33,17 +33,17 @@ def send_threaded(Client_socket, addr, queue):
     
 if __name__ == "__main__":
     lm.predict_process.start()
-    HOST='127.0.0.1'
-    PORT=9999
+    RECV_HOST='127.0.0.1'
+    RECV_PORT=9999 #RECV PORT
     
     #TCP 사용
     s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     print('Socket created')
     
     #CoreCloud IP, PortNumber set
-    s.bind((HOST,PORT))
+    s.bind((RECV_HOST,RECV_PORT))
     print('Socket bind complete')
-    # Edge Cloud 접속wait (클라이언트 연결을 10개까지 받는다)
+    # Edge Cloud 접속wait (클라이언트 연결을 10개까지 받음)
     s.listen(10)
     print('Socket now listening')
     
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     conn,addr=s.accept()
 
     SEND_HOST = '127.0.0.1'
-    SEND_PORT = 9999
+    SEND_PORT = 9998 #SEND PORT
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -62,13 +62,13 @@ if __name__ == "__main__":
         length = recvall(conn, 16)
         stringData = recvall(conn, int(length))
         data = np.fromstring(stringData, dtype = 'uint8')
-        client_socket, addr = server_socket.accept()
         #data decode
         cropped = cv2.imdecode(data, cv2.IMREAD_COLOR)
         cropped = cv2.resize(cropped, (48,48)) #Crop Image Resize
         result = lm.new_tensor(cropped) # Predict result
         lm.predict_process.join() # thread join
+        edge_socket, addr = server_socket.accept()
         enclose_q.put(result)
-        start_new_thread(send_threaded, (client_socket, addr, enclose_q,))
+        start_new_thread(send_threaded, (edge_socket, addr, enclose_q,))
         if(conn): #연결 끊어질 경우 loop 탈출
             break

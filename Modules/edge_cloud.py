@@ -99,7 +99,7 @@ def recvall(sock, count):
     return buf
 
 if __name__ == '__main__':
-    SEND_HOST = '127.0.0.1'
+    SEND_HOST = '127.0.0.1' #CORE CLOUD
     SEND_PORT = 9999
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -107,8 +107,8 @@ if __name__ == '__main__':
     server_socket.bind((SEND_HOST, SEND_PORT))
     server_socket.listen()
 
-    RECV_HOST = '127.0.0.1'
-    RECV_PORT = 9999
+    RECV_HOST = '127.0.0.1' #CORE CLOUD
+    RECV_PORT = 9998
 
     recv_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     recv_server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
