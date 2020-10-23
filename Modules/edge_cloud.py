@@ -118,14 +118,13 @@ if __name__ == '__main__':
     print('server start')
 
     start_new_thread(webcam, (enclose_q,))
-    conn,addr = recv_server_socket.accept()
     while True:
         print('wait')
 
         client_socket, addr = server_socket.accept()
-        recv_socket, recv_addr = recv_server_socket.accept()
         start_new_thread(send_threaded, (client_socket, addr, enclose_q,)) #전처리 데이터 송신
-        if(conn):
+        conn,addr = recv_server_socket.accept() #수신 대기
+        if(conn): 
             length = recvall(conn, 16)
             stringData = recvall(conn, int(length))
             data = np.fromstring(stringData, dtype = 'uint8') #주행정보 수신
