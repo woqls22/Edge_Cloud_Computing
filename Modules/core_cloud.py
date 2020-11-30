@@ -1,11 +1,13 @@
 import socket
 import cv2
 import numpy as np
-from multiprocessing import Queue
-from queue import Queue
+#from queue import Queue
 from _thread import *
-from labeling_module import LabelingModule as lm
+from multiprocessing import Queue
+from labeling_module import LabelingModule
+
 enclose_q = Queue()
+lm = LabelingModule()
 #socket에서 수신한 버퍼를 반환
 def recvall(sock, count):
     # 바이트 문자열
@@ -33,7 +35,8 @@ def send_threaded(Client_socket, addr, queue):
     
 if __name__ == "__main__":
     lm.predict_process.start()
-    RECV_HOST='127.0.0.1'
+
+    RECV_HOST='192.168.35.227'
     RECV_PORT=9999 #RECV PORT
     
     #TCP 사용
@@ -50,7 +53,7 @@ if __name__ == "__main__":
     #연결, conn 소켓 객체, addr socket binded addr
     conn,addr=s.accept()
 
-    SEND_HOST = '127.0.0.1'
+    SEND_HOST = '192.168.35.87'
     SEND_PORT = 9998 #SEND PORT
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

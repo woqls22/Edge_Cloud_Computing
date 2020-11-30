@@ -1,3 +1,4 @@
+ # -*- coding: euc-kr -*- 
 import socket
 import cv2
 import numpy as np
@@ -5,9 +6,7 @@ from queue import Queue
 from _thread import *
 enclose_q = Queue()
 recv_enclose_q = Queue()
-import time
 def filter_img(img):
-    #이미지의 RGB값을 분석하여 찾는 실내 Tag가 맞는지 판별
     img = cv2.resize(img, (10,10))
     first = [0,0,0]
     for x_loc in range(0, 10):
@@ -27,7 +26,6 @@ def filter_img(img):
         return False
 
 def bboxes(inp):
-    #Frame을 인자로 전달받음
     img = inp
     start = time.time()
     curTime = time.time()
@@ -38,7 +36,7 @@ def bboxes(inp):
     ret, new_img = cv2.threshold(img_final, 180, 255, cv2.THRESH_BINARY)  # Nfor black text , cv.THRESH_BINARY_IV
     newimg = cv2.cvtColor(new_img, cv2.COLOR_BGR2GRAY) #Gray Image converting
     _,contours, _ = cv2.findContours(newimg, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)  # get contours
-    #cv2.CHAIN_APPROX_NONE: 모든 컨투어 포인트를 반환
+    #cv2.CHAIN_APPROX_NONE: All of contour point
     for contour in contours:
         [x, y, w, h] = cv2.boundingRect(contour)
 
@@ -89,7 +87,7 @@ def webcam(queue):
         if key == 27:
             break
 def recvall(sock, count):
-    # 바이트 문자열
+    # byte string
     buf = b''
     while count:
         newbuf = sock.recv(count)
@@ -99,7 +97,7 @@ def recvall(sock, count):
     return buf
 
 if __name__ == '__main__':
-    SEND_HOST = '127.0.0.1' #CORE CLOUD
+    SEND_HOST = '192.168.35.87' #CORE CLOUD
     SEND_PORT = 9999
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -107,7 +105,7 @@ if __name__ == '__main__':
     server_socket.bind((SEND_HOST, SEND_PORT))
     server_socket.listen()
 
-    RECV_HOST = '127.0.0.1' #CORE CLOUD
+    RECV_HOST = '192.168.35.227' #CORE CLOUD
     RECV_PORT = 9998
 
     recv_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -122,13 +120,13 @@ if __name__ == '__main__':
         print('wait')
 
         client_socket, addr = server_socket.accept()
-        start_new_thread(send_threaded, (client_socket, addr, enclose_q,)) #전처리 데이터 송신
-        conn,addr = recv_server_socket.accept() #수신 대기
+        start_new_thread(send_threaded, (client_socket, addr, enclose_q,)) #preprocessed data recieve.
+        conn,addr = recv_server_socket.accept() #waiting receiving...
         if(conn): 
             length = recvall(conn, 16)
             stringData = recvall(conn, int(length))
-            data = np.fromstring(stringData, dtype = 'uint8') #주행정보 수신
-            if(conn): #연결 끊어질 경우 loop 탈출
+            data = np.fromstring(stringData, dtype = 'uint8') #receive driving info.
+            if(conn): #loop ex
                 break
         else:
             pass
