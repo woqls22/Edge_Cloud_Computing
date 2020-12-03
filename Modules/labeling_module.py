@@ -11,6 +11,7 @@ import datetime
 import numpy as np
 from queue import Full, Empty
 from multiprocessing import Process, Queue
+import socket
 import cv2
 
 fname = 'croppedimg/{}.png'
