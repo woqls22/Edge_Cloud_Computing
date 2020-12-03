@@ -28,7 +28,7 @@
 라즈베리파이의 원본 카메라 영상을 스트리밍으로 서버에 전송, 코어클라우드에서 human prediction후 주행정보를 전송하도록 구현하였음.
 
 ### 성능평가
-<img src = "./Resources/performance.png">
+<img src = "./Resources/performance.png" width="380px">
 
 * 명패 인식 모듈 : 1프레임 평균 처리속도 0.15초에서 0.03초로  30프레임 이상 성능 개선
 
