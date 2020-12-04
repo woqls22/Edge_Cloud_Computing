@@ -19,12 +19,10 @@ def filter_img(img):
     blue = first[0]<200 and first[0]>120
     green = first[1]>120 and first[1]<210
     red = first[2]>130 and first[2]<230
-
     if(blue and green and red):
         return True
     else:
         return False
-
 def bboxes(inp):
     img = inp
     start = time.time()
@@ -39,7 +37,6 @@ def bboxes(inp):
     #cv2.CHAIN_APPROX_NONE: All of contour point
     for contour in contours:
         [x, y, w, h] = cv2.boundingRect(contour)
-
         if h / w > 1.0 or w / h > 2.0:
             continue
         #if h>40 or w>70:
@@ -53,7 +50,6 @@ def bboxes(inp):
         else:
             continue
     return cropped
-
 def send_threaded(Client_socket, addr, queue):
     print("Connected by : ", addr[0], " : ", addr[1])
     while True:
@@ -68,12 +64,10 @@ def send_threaded(Client_socket, addr, queue):
         except ConnectionResetError as e:
             print("Disconnected")
     Client_socket.close()
-
 def webcam(queue):
     capture = cv2.VideoCapture(0)
     while True:
         ret, frame = capture.read()
-
         if ret == False:
             continue
         frame = bboxes(frame)
@@ -95,30 +89,23 @@ def recvall(sock, count):
         buf += newbuf
         count -= len(newbuf)
     return buf
-
 if __name__ == '__main__':
-    SEND_HOST = '192.168.35.87' #CORE CLOUD
+    SEND_HOST = '192.168.35.227' #CORE CLOUD
     SEND_PORT = 9999
-
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((SEND_HOST, SEND_PORT))
     server_socket.listen()
-
-    RECV_HOST = '192.168.35.227' #CORE CLOUD
+    RECV_HOST = '192.168.35.87' #EDGE CLOUD
     RECV_PORT = 9998
-
     recv_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     recv_server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     recv_server_socket.bind((RECV_HOST, RECV_PORT))
     recv_server_socket.listen()
-
     print('server start')
-
     start_new_thread(webcam, (enclose_q,))
     while True:
         print('wait')
-
         client_socket, addr = server_socket.accept()
         start_new_thread(send_threaded, (client_socket, addr, enclose_q,)) #preprocessed data recieve.
         conn,addr = recv_server_socket.accept() #waiting receiving...
